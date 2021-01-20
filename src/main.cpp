@@ -147,10 +147,10 @@ void led_pacifica() {
   fill_solid( leds, NUM_LEDS, CRGB( 2, 6, 10));
 
   // Render each of four layers, with different scales and speeds, that vary over time
-  pacifica_one_layer( pacifica_palette_1, sCIStart1, beatsin16( 3, 11 * 256, 14 * 256), beatsin8( 10, 70, 130), 0-beat16( 301) );
-  pacifica_one_layer( pacifica_palette_2, sCIStart2, beatsin16( 4,  6 * 256,  9 * 256), beatsin8( 17, 40,  80), beat16( 401) );
-  pacifica_one_layer( pacifica_palette_3, sCIStart3, 6 * 256, beatsin8( 9, 10,38), 0-beat16(503));
-  pacifica_one_layer( pacifica_palette_3, sCIStart4, 5 * 256, beatsin8( 8, 10,28), beat16(601));
+  pacifica_one_layer(pacifica_palette_1, sCIStart1, beatsin16( 3, 11 * 256, 14 * 256), beatsin8( 10, 70, 130), 0-beat16( 301));
+  pacifica_one_layer(pacifica_palette_2, sCIStart2, beatsin16( 4,  6 * 256,  9 * 256), beatsin8( 17, 40,  80), beat16( 401));
+  pacifica_one_layer(pacifica_palette_3, sCIStart3, 6 * 256, beatsin8( 9, 10,38), 0-beat16(503));
+  pacifica_one_layer(pacifica_palette_3, sCIStart4, 5 * 256, beatsin8( 8, 10,28), beat16(601));
 
   // Add brighter 'whitecaps' where the waves lines up more
   pacifica_add_whitecaps();
@@ -160,7 +160,6 @@ void led_pacifica() {
 }
 
 void check_mode(int networkCount) {
-  Serial.println("mode check");
   if (networkCount == 0) {
     return;
   }
@@ -210,15 +209,19 @@ void run_mode() {
   FastLED.show();
 }
 
+void set_random_colors() {
+  random16_add_entropy(analogRead(A0) + millis());
+
+  static_random_hue = random16(255);
+  static_grad_start_hue = random16(255);
+  static_grad_end_hue = random16(255);
+}
+
 void setup() {
   loadStorage();
   lastMode = storage.mode;
 
-  Serial.begin(115200);
-
-  static_random_hue = random8();
-  static_grad_start_hue = random8();
-  static_grad_end_hue = random8();
+  set_random_colors();
 
   FastLED.addLeds<WS2812B, 5, GRB>(leds, NUM_LEDS);
   FastLED.setBrightness(BRIGHTNESS);
@@ -228,7 +231,7 @@ void setup() {
 }
 
 void loop() {
-  EVERY_N_MILLISECONDS(100) {
+  EVERY_N_MILLISECONDS(50) {
     run_mode();
   }
 
